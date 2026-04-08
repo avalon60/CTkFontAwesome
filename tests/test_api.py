@@ -30,6 +30,14 @@ class ApiTests(unittest.TestCase):
             ctkfontawesome.icon_to_image("facebook")
         self.assertIn("optional image dependencies", str(ctx.exception))
 
+    def test_icon_to_ctkimage_requires_optional_backend(self):
+        with self.assertRaises(RuntimeError) as ctx:
+            ctkfontawesome.icon_to_ctkimage("facebook")
+        self.assertTrue(
+            "optional image dependencies" in str(ctx.exception)
+            or "CustomTkinter" in str(ctx.exception)
+        )
+
     def test_compute_output_size_from_width(self):
         self.assertEqual(
             ctkfontawesome._compute_output_size(512, 512, 64, None, 1),

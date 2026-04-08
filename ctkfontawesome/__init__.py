@@ -40,11 +40,65 @@ def icon_to_image(name, fill=None, scale_to_width=None, scale_to_height=None, sc
         tk.Label(root, image=img).pack(padx=10, pady=10)
         root.mainloop()
     """
+    image = icon_to_pil(name, fill, scale_to_width, scale_to_height, scale)
+    try:
+        from PIL import ImageTk
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "icon_to_image() requires the optional image dependencies. "
+            "Install them with `pip install 'ctkfontawesome[images]'`."
+        ) from exc
+
+    photo = ImageTk.PhotoImage(image=image)
+    photo._pil_image = image
+    return photo
+
+
+def icon_to_ctkimage(name, fill=None, scale_to_width=None, scale_to_height=None, scale=1):
+    """
+    Look up a FontAwesome icon by name and return it as a CustomTkinter CTkImage.
+
+    Parameters:
+        name (str): Name of the FontAwesome icon (e.g., 'facebook').
+        fill (str): Optional fill color for the icon (e.g., "#4267B2").
+        scale_to_width (int): Target width in pixels (maintains aspect ratio).
+        scale_to_height (int): Target height in pixels (maintains aspect ratio).
+        scale (float): Scaling factor (applied only if width/height are not set).
+
+    Returns:
+        CTkImage: The converted image ready for use in CustomTkinter widgets.
+    """
+    image = icon_to_pil(name, fill, scale_to_width, scale_to_height, scale)
+    try:
+        import customtkinter as ctk
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "icon_to_ctkimage() requires CustomTkinter. "
+            "Install it with `pip install customtkinter`."
+        ) from exc
+
+    return ctk.CTkImage(light_image=image, dark_image=image, size=image.size)
+
+
+def icon_to_pil(name, fill=None, scale_to_width=None, scale_to_height=None, scale=1):
+    """
+    Look up a FontAwesome icon by name and return it as a PIL image.
+
+    Parameters:
+        name (str): Name of the FontAwesome icon (e.g., 'facebook').
+        fill (str): Optional fill color for the icon (e.g., "#4267B2").
+        scale_to_width (int): Target width in pixels (maintains aspect ratio).
+        scale_to_height (int): Target height in pixels (maintains aspect ratio).
+        scale (float): Scaling factor (applied only if width/height are not set).
+
+    Returns:
+        PIL.Image.Image: The rendered image object.
+    """
     name = FA_aliases.get(name, name)
     if name.startswith('fa-'):
         name = name[3:]
     xml_data = icon_to_svg(name)
-    return svg_to_image(xml_data, fill, scale_to_width, scale_to_height, scale)
+    return svg_to_pil(xml_data, fill, scale_to_width, scale_to_height, scale)
 
 
 def icon_to_svg(name):
@@ -68,9 +122,9 @@ def icon_to_svg(name):
     return xml_data
 
 
-def svg_to_image(source, fill=None, scale_to_width=None, scale_to_height=None, scale=1):
+def svg_to_pil(source, fill=None, scale_to_width=None, scale_to_height=None, scale=1):
     """
-    Convert an SVG string into an image object for use in tkinter.
+    Convert an SVG string into a PIL image.
 
     Parameters:
         source (str): Raw SVG XML string.
@@ -80,15 +134,15 @@ def svg_to_image(source, fill=None, scale_to_width=None, scale_to_height=None, s
         scale (float): Optional scaling factor.
 
     Returns:
-        PhotoImage: The processed image object when the optional image
+        PIL.Image.Image: The processed image object when the optional image
         dependencies are installed.
     """
     try:
         import cairosvg
-        from PIL import Image, ImageTk
+        from PIL import Image
     except ModuleNotFoundError as exc:
         raise RuntimeError(
-            "svg_to_image() requires the optional image dependencies. "
+            "svg_to_pil() requires the optional image dependencies. "
             "Install them with `pip install 'ctkfontawesome[images]'`."
         ) from exc
 
@@ -120,6 +174,32 @@ def svg_to_image(source, fill=None, scale_to_width=None, scale_to_height=None, s
         output_height=output_height,
     )
     image = Image.open(io.BytesIO(png_data))
+    return image
+
+
+def svg_to_image(source, fill=None, scale_to_width=None, scale_to_height=None, scale=1):
+    """
+    Convert an SVG string into an image object for use in tkinter.
+
+    Parameters:
+        source (str): Raw SVG XML string.
+        fill (str): Optional fill color override.
+        scale_to_width (int): Width in pixels (maintains aspect ratio).
+        scale_to_height (int): Height in pixels (maintains aspect ratio).
+        scale (float): Optional scaling factor.
+
+    Returns:
+        PhotoImage: The processed image object when the optional image
+        dependencies are installed.
+    """
+    image = svg_to_pil(source, fill, scale_to_width, scale_to_height, scale)
+    try:
+        from PIL import ImageTk
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "svg_to_image() requires the optional image dependencies. "
+            "Install them with `pip install 'ctkfontawesome[images]'`."
+        ) from exc
     photo = ImageTk.PhotoImage(image=image)
     photo._pil_image = image
     return photo

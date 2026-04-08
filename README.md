@@ -25,13 +25,13 @@ python -m pip install ctkfontawesome
 
 This installs the icon database and SVG lookup helpers without any native or compiled dependencies.
 
-If you also want `icon_to_image()`, install the optional image dependencies:
+If you also want `icon_to_image()` or `icon_to_ctkimage()`, install the optional image dependencies:
 
 ```shell
 python -m pip install "ctkfontawesome[images]"
 ```
 
-This installs CairoSVG and Pillow for SVG rasterization and Tk image support.
+This installs CairoSVG, Pillow, and CustomTkinter for SVG rasterization and image support.
 
 ## Icon Browser
 
@@ -93,6 +93,21 @@ tk.Button(root, image=send).pack(padx=10, pady=10)
 root.mainloop()
 ```
 
+## CustomTkinter Usage
+
+```python
+import customtkinter as ctk
+from ctkfontawesome import icon_to_ctkimage
+
+app = ctk.CTk()
+icon = icon_to_ctkimage("eye", fill="#1D9F75", scale_to_width=28)
+
+button = ctk.CTkButton(app, text="Preview", image=icon, compound="left")
+button.pack(padx=20, pady=20)
+
+app.mainloop()
+```
+
 ## Usage Without Image Dependencies
 
 ```python
@@ -125,6 +140,12 @@ print(svg[:80])
 | scale_to_width    | int   | Adjust image width to this size (in pixels); maintains aspect ratio.  | None      |
 | scale_to_height   | int   | Adjust image height to this size (in pixels); maintains aspect ratio. | None      |
 | scale             | float | Scale the image width and height by this factor.                      | 1         |
+
+## API: `icon_to_ctkimage()`
+
+Same parameters as `icon_to_image()`, but returns a `customtkinter.CTkImage`
+for DPI-aware use in CustomTkinter widgets. This API requires the
+`ctkfontawesome[images]` optional dependencies.
 
 ## API: `icon_to_svg()`
 

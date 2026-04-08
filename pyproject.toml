@@ -15,7 +15,7 @@ requires-python = ">=3.8"
 dependencies = []
 
 [project.optional-dependencies]
-images = ["CairoSVG>=2.7.0", "Pillow>=9.0.0"]
+images = ["CairoSVG>=2.7.0", "Pillow>=9.0.0", "customtkinter>=5.2.0"]
 
 [project.urls]
 Homepage = "https://github.com/avalon60/CTkFontAwesome"
