@@ -2,7 +2,7 @@ import io
 from xml.etree import ElementTree as etree
 from ctkfontawesome.svgs import FA, FA_aliases
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 
 def icon_names():
