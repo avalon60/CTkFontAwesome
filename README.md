@@ -71,6 +71,15 @@ To run the icon browser during development:
 poetry run ctkfontawesome-browser
 ```
 
+To bump the package version and create a git commit and tag:
+
+```shell
+poetry run bump2version patch
+```
+
+Use `minor` or `major` instead of `patch` when appropriate. The bump updates
+both `pyproject.toml` and `ctkfontawesome/__init__.py`.
+
 Once installed, you can launch the browser with:
 
 ```shell

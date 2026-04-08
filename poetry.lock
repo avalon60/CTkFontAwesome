@@ -27,6 +27,18 @@ uv = ["uv (>=0.1.18)"]
 virtualenv = ["virtualenv (>=20.0.35)"]
 
 [[package]]
+name = "bump2version"
+version = "1.0.1"
+description = "Version-bump your software with a single command!"
+optional = false
+python-versions = ">=3.5"
+groups = ["dev"]
+files = [
+    {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
+    {file = "bump2version-1.0.1.tar.gz", hash = "sha256:762cb2bfad61f4ec8e2bdf452c7c267416f8c70dd9ecb1653fd0bbb01fa936e6"},
+]
+
+[[package]]
 name = "cairocffi"
 version = "1.7.1"
 description = "cffi-based cairo bindings for Python"
@@ -595,4 +607,4 @@ images = ["CairoSVG", "Pillow", "customtkinter"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "7d84887554a59e3fd11c686217025f64df8312d9dc67ca1094a945ccf8b09cf0"
+content-hash = "60841a2a23caf25c25264dd7a132badb70471657127d73617946eee81a5faf7e"
