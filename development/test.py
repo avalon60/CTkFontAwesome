@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkfontawesome import icon_to_image
+from ctkfontawesome import icon_to_image
 
 root = tk.Tk()
 img = icon_to_image("facebook", fill="#4267B2", scale_to_width=64)
