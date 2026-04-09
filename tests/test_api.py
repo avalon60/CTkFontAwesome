@@ -21,6 +21,48 @@ class ApiTests(unittest.TestCase):
         prefixed = ctkfontawesome.icon_to_svg("fa-facebook")
         self.assertEqual(plain, prefixed)
 
+    def test_icon_categories_support_aliases(self):
+        with mock.patch.dict(ctkfontawesome.FA_categories, {"facebook": ("brands",)}, clear=True):
+            self.assertEqual(ctkfontawesome.icon_categories("facebook"), ("brands",))
+            self.assertEqual(ctkfontawesome.icon_categories("fa-facebook"), ("brands",))
+
+    def test_icon_categories_return_empty_tuple_when_no_categories_exist(self):
+        with mock.patch.dict(ctkfontawesome.FA_categories, {}, clear=True):
+            self.assertEqual(ctkfontawesome.icon_categories("facebook"), ())
+
+    def test_category_names_returns_sorted_unique_names(self):
+        with mock.patch.dict(
+            ctkfontawesome.FA_categories,
+            {
+                "facebook": ("brands", "social"),
+                "github": ("brands", "code"),
+            },
+            clear=True,
+        ):
+            self.assertEqual(
+                ctkfontawesome.category_names(),
+                ["brands", "code", "social"],
+            )
+
+    def test_icons_in_category_returns_sorted_names(self):
+        with mock.patch.dict(
+            ctkfontawesome.FA_categories,
+            {
+                "github": ("brands", "code"),
+                "facebook": ("brands", "social"),
+                "python": ("code",),
+            },
+            clear=True,
+        ):
+            self.assertEqual(
+                ctkfontawesome.icons_in_category("code"),
+                ["github", "python"],
+            )
+
+    def test_icons_in_category_returns_empty_list_for_unknown_category(self):
+        with mock.patch.dict(ctkfontawesome.FA_categories, {"facebook": ("brands",)}, clear=True):
+            self.assertEqual(ctkfontawesome.icons_in_category("social"), [])
+
     def test_icon_to_svg_rejects_invalid_icon_name(self):
         with self.assertRaises(ValueError):
             ctkfontawesome.icon_to_svg("not-a-real-icon-name")

@@ -1,37 +1,25 @@
-"""Create svgs.py file from font-awesome icons directories.
+"""Backward-compatible wrapper around the development data generator."""
 
-brands, regular, solid should be copied into this directory from svgs directory
- in font awesome download zip.
-icons.json should be copied into this directory from metadata directory in font
-awesome download zip.
-"""
-
-import json
 from pathlib import Path
-from pprint import pformat
-
-root = Path(__file__).parent
-
-dirs = [root/'brands', root/'regular', root/'solid']
-
-svg_dict = {}
-
-for dir in dirs:
-    print(dir)
-    for file in dir.iterdir():
-        svg_dict[file.stem] = file.read_text()
+import sys
 
 
-alias_dict = {}
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-with (root/'icons.json').open('r', encoding='utf8') as f:
-   icons = json.load(f)
+from development.fontawesome_generator import regenerate_from_package
 
-for icon, icon_data in icons.items():
-    if 'aliases' not in icon_data or 'names' not in icon_data['aliases']:
-        continue
-    for alias in icon_data['aliases']['names']:
-        alias_dict[alias] = icon
 
-with (root/'..'/'svgs.py').open('w', encoding='utf-8') as f:
-    f.write(f'FA = {pformat(svg_dict, width=9999, indent=4)}\nFA_aliases = {pformat(alias_dict, indent=4)}\n')
+def main():
+    package_root = Path(__file__).parent
+    output_path = ROOT / "ctkfontawesome" / "svgs.py"
+    icon_count, alias_count, category_count = regenerate_from_package(package_root, output_path)
+    print(
+        f"Wrote {output_path} with {icon_count} icons, {alias_count} aliases, "
+        f"and {category_count} categorized icons."
+    )
+
+
+if __name__ == "__main__":
+    main()

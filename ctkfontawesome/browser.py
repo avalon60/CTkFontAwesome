@@ -1,3 +1,9 @@
+"""Tk-based browser for searching and previewing bundled Font Awesome icons."""
+
+# Author: Clive Bostock
+# Date: 2026-04-09
+# Description: Provide a desktop browser for browsing, previewing, and copying icon snippets.
+
 import tkinter as tk
 from tkinter import ttk
 
@@ -5,6 +11,8 @@ import ctkfontawesome
 
 
 class IconBrowser(tk.Tk):
+    """Desktop browser for searching and previewing bundled icons."""
+
     def __init__(self):
         super().__init__()
         self.title("CTkFontAwesome Browser")
@@ -12,10 +20,12 @@ class IconBrowser(tk.Tk):
         self.minsize(840, 520)
 
         self.all_icons = ctkfontawesome.icon_names()
+        self.all_categories = ctkfontawesome.category_names()
         self.filtered_icons = self.all_icons[:]
         self.current_image = None
 
         self.search_var = tk.StringVar()
+        self.category_var = tk.StringVar(value="All categories")
         self.fill_var = tk.StringVar(value="#1f6aa5")
         self.size_var = tk.IntVar(value=96)
         self.status_var = tk.StringVar()
@@ -34,18 +44,30 @@ class IconBrowser(tk.Tk):
 
         left = ttk.Frame(self, padding=12)
         left.grid(row=0, column=0, sticky="nsew")
-        left.rowconfigure(2, weight=1)
+        left.rowconfigure(4, weight=1)
 
-        ttk.Label(left, text="Search").grid(row=0, column=0, sticky="w")
+        ttk.Label(left, text="Category").grid(row=0, column=0, sticky="w")
+        category_values = ["All categories", *self.all_categories]
+        category_combo = ttk.Combobox(
+            left,
+            textvariable=self.category_var,
+            values=category_values,
+            state="readonly",
+            width=30,
+        )
+        category_combo.grid(row=1, column=0, sticky="ew", pady=(4, 10))
+        category_combo.bind("<<ComboboxSelected>>", self._on_search)
+
+        ttk.Label(left, text="Search").grid(row=2, column=0, sticky="w")
         search_entry = ttk.Entry(left, textvariable=self.search_var, width=32)
-        search_entry.grid(row=1, column=0, sticky="ew", pady=(4, 12))
+        search_entry.grid(row=3, column=0, sticky="ew", pady=(4, 12))
         search_entry.bind("<KeyRelease>", self._on_search)
 
         self.count_label = ttk.Label(left, text="")
-        self.count_label.grid(row=2, column=0, sticky="sw", pady=(0, 4))
+        self.count_label.grid(row=4, column=0, sticky="sw", pady=(0, 4))
 
         list_frame = ttk.Frame(left)
-        list_frame.grid(row=3, column=0, sticky="nsew")
+        list_frame.grid(row=5, column=0, sticky="nsew")
         list_frame.rowconfigure(0, weight=1)
         list_frame.columnconfigure(0, weight=1)
 
@@ -128,21 +150,34 @@ class IconBrowser(tk.Tk):
             self.listbox.insert(tk.END, name)
         self.count_label.configure(text=f"{len(self.filtered_icons)} icons")
 
-    def _on_search(self, _event):
+    def _apply_filters(self):
         term = self.search_var.get().strip().lower()
-        if not term:
-            self.filtered_icons = self.all_icons[:]
+        selected_category = self.category_var.get()
+
+        if selected_category == "All categories":
+            category_icons = self.all_icons
         else:
-            self.filtered_icons = [name for name in self.all_icons if term in name.lower()]
+            category_icons = ctkfontawesome.icons_in_category(selected_category)
+
+        if term:
+            self.filtered_icons = [name for name in category_icons if term in name.lower()]
+        else:
+            self.filtered_icons = list(category_icons)
+
+    def _on_search(self, _event=None):
+        self._apply_filters()
         self._populate_list()
         if self.filtered_icons:
+            self.listbox.selection_clear(0, tk.END)
             self.listbox.selection_set(0)
+            self.listbox.activate(0)
+            self.listbox.see(0)
             self._on_selection(None)
         else:
             self.selected_name_var.set("No matches")
             self._set_code_text("")
             self.preview_label.configure(image="", text="")
-            self.status_var.set("No icons match the current filter.")
+            self.status_var.set("No icons match the current search and category filters.")
 
     def _on_selection(self, _event):
         selection = self.listbox.curselection()
@@ -228,6 +263,7 @@ class IconBrowser(tk.Tk):
 
 
 def main():
+    """Launch the icon browser application."""
     app = IconBrowser()
     app.mainloop()
 

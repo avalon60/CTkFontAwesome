@@ -1,6 +1,6 @@
 import io
 from xml.etree import ElementTree as etree
-from ctkfontawesome.svgs import FA, FA_aliases
+from ctkfontawesome.svgs import FA, FA_aliases, FA_categories
 
 __version__ = "0.5.0"
 
@@ -13,6 +13,52 @@ def icon_names():
         list[str]: Sorted icon names available in the built-in SVG map.
     """
     return sorted(FA)
+
+
+def icon_categories(name):
+    """
+    Return the upstream category names associated with an icon.
+
+    Parameters:
+        name (str): Name or alias of the FontAwesome icon.
+
+    Returns:
+        tuple[str, ...]: Category names for the icon, if available in the
+        bundled metadata.
+    """
+    canonical_name = _canonical_icon_name(name)
+    icon_to_svg(canonical_name)
+    return tuple(FA_categories.get(canonical_name, ()))
+
+
+def category_names():
+    """
+    Return the available upstream category names.
+
+    Returns:
+        list[str]: Sorted category names available in the bundled metadata.
+    """
+    categories = set()
+    for icon_category_names in FA_categories.values():
+        categories.update(icon_category_names)
+    return sorted(categories)
+
+
+def icons_in_category(category):
+    """
+    Return the icon names associated with a category.
+
+    Parameters:
+        category (str): Upstream FontAwesome category name.
+
+    Returns:
+        list[str]: Sorted icon names in the requested category.
+    """
+    return sorted(
+        icon_name
+        for icon_name, icon_category_names in FA_categories.items()
+        if category in icon_category_names
+    )
 
 
 def icon_to_image(name, fill=None, scale_to_width=None, scale_to_height=None, scale=1):
@@ -94,9 +140,7 @@ def icon_to_pil(name, fill=None, scale_to_width=None, scale_to_height=None, scal
     Returns:
         PIL.Image.Image: The rendered image object.
     """
-    name = FA_aliases.get(name, name)
-    if name.startswith('fa-'):
-        name = name[3:]
+    name = _canonical_icon_name(name)
     xml_data = icon_to_svg(name)
     return svg_to_pil(xml_data, fill, scale_to_width, scale_to_height, scale)
 
@@ -111,9 +155,7 @@ def icon_to_svg(name):
     Returns:
         str: Raw SVG XML for the requested icon.
     """
-    name = FA_aliases.get(name, name)
-    if name.startswith('fa-'):
-        name = name[3:]
+    name = _canonical_icon_name(name)
     xml_data = FA.get(name)
     if xml_data is None:
         raise ValueError(
@@ -203,6 +245,13 @@ def svg_to_image(source, fill=None, scale_to_width=None, scale_to_height=None, s
     photo = ImageTk.PhotoImage(image=image)
     photo._pil_image = image
     return photo
+
+
+def _canonical_icon_name(name):
+    name = FA_aliases.get(name, name)
+    if name.startswith("fa-"):
+        name = name[3:]
+    return name
 
 
 def _get_svg_dimensions(root):

@@ -2,8 +2,8 @@
 name = "ctkfontawesome"
 version = "0.5.0"
 authors = [{name = "Clive Bostock", email = "cbostock20@gmail.com"}]
-description = "Use any of the 2k+ free FontAwesome icons in your tkinter application."
-keywords = ["svg", "fontawesome", "icons", "tkinter", "ttk"]
+description = "Use any of the 2k+ free FontAwesome icons in your CustomTkinter / Tkinter applications."
+keywords = ["fontawesome", "icons", "customtkinter", "tkinter", "svg", "browser"]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
